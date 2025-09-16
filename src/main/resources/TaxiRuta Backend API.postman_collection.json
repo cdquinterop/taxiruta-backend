@@ -1,0 +1,479 @@
+{
+	"info": {
+		"_postman_id": "9435c6d6-cd35-4ad6-8c8f-5626fcf78c57",
+		"name": "TaxiRuta Backend API",
+		"description": "Colección completa de endpoints para el sistema TaxiRuta - gestión de viajes compartidos con autenticación JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15901787"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newuser@taxiruta.com\",\n  \"password\": \"password123\",\n  \"name\": \"New User\",\n  \"role\": \"PASAJERO\",\n  \"phone\": \"+1234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registrar un nuevo usuario en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const responseJson = pm.response.json();",
+									"    pm.environment.set(\"jwt_token\", responseJson.token);",
+									"    pm.environment.set(\"user_id\", responseJson.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"driver@taxiruta.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autenticar usuario y obtener token JWT"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Obtener perfil del usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated User Name\",\n  \"phone\": \"+9876543210\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Actualizar perfil del usuario"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Trips",
+			"item": [
+				{
+					"name": "Get All Trips",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips"
+							]
+						},
+						"description": "Listar todos los viajes disponibles (público)"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Trips",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips?origin=Downtown&destination=Airport&departureDate=2025-09-17T10:00:00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips"
+							],
+							"query": [
+								{
+									"key": "origin",
+									"value": "Downtown"
+								},
+								{
+									"key": "destination",
+									"value": "Airport"
+								},
+								{
+									"key": "departureDate",
+									"value": "2025-09-17T10:00:00"
+								}
+							]
+						},
+						"description": "Buscar viajes con filtros"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trip Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1"
+							]
+						},
+						"description": "Obtener detalles de un viaje específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Trip (Driver Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driverId\": {{user_id}},\n  \"origin\": \"Central Station\",\n  \"destination\": \"Business District\",\n  \"departureTime\": \"2025-09-17T14:30:00\",\n  \"availableSeats\": 4,\n  \"price\": 20.00\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/trips",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips"
+							]
+						},
+						"description": "Crear un nuevo viaje (solo conductores)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Trip (Driver Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"driverId\": {{user_id}},\n  \"origin\": \"Central Station\",\n  \"destination\": \"Business District\",\n  \"departureTime\": \"2025-09-17T15:00:00\",\n  \"availableSeats\": 3,\n  \"price\": 22.00\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1"
+							]
+						},
+						"description": "Actualizar un viaje existente (solo el conductor propietario)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Trip (Driver Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1"
+							]
+						},
+						"description": "Cancelar un viaje (solo el conductor propietario)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bookings",
+			"item": [
+				{
+					"name": "Create Booking (Passenger Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tripId\": 1,\n  \"passengerId\": {{user_id}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1",
+								"bookings"
+							]
+						},
+						"description": "Reservar un asiento en un viaje (solo pasajeros)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trip Bookings (Driver Only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1",
+								"bookings"
+							]
+						},
+						"description": "Ver todas las reservas de un viaje (solo conductor del viaje)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Status (Driver Only)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1/bookings/1?status=CONFIRMED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1",
+								"bookings",
+								"1"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "CONFIRMED",
+									"description": "PENDING, CONFIRMED, REJECTED, CANCELLED"
+								}
+							]
+						},
+						"description": "Actualizar estado de una reserva (solo conductor del viaje)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/trips/1/bookings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trips",
+								"1",
+								"bookings",
+								"1"
+							]
+						},
+						"description": "Cancelar una reserva (pasajero o conductor)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "jwt_token",
+			"value": ""
+		},
+		{
+			"key": "user_id",
+			"value": ""
+		}
+	]
+}
