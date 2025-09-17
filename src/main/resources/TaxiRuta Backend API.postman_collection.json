@@ -8,10 +8,52 @@
 	},
 	"item": [
 		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Application Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Verificar que la aplicación esté funcionando correctamente"
+					},
+					"response": []
+				},
+				{
+					"name": "Swagger Documentation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/swagger-ui.html",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"swagger-ui.html"
+							]
+						},
+						"description": "Acceder a la documentación Swagger de la API"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Authentication",
 			"item": [
 				{
-					"name": "Register User",
+					"name": "Register Passenger",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -22,7 +64,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"newuser@taxiruta.com\",\n  \"password\": \"password123\",\n  \"name\": \"New User\",\n  \"role\": \"PASAJERO\",\n  \"phone\": \"+1234567890\"\n}"
+							"raw": "{\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Pérez\",\n  \"email\": \"juan.perez@taxiruta.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+573001234567\",\n  \"role\": \"PASSENGER\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/auth/register",
@@ -35,7 +77,36 @@
 								"register"
 							]
 						},
-						"description": "Registrar un nuevo usuario en el sistema"
+						"description": "Registrar un nuevo pasajero en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Driver",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Rodríguez\",\n  \"email\": \"carlos.rodriguez@taxiruta.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+573009876543\",\n  \"role\": \"DRIVER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registrar un nuevo conductor en el sistema"
 					},
 					"response": []
 				},
@@ -48,8 +119,10 @@
 								"exec": [
 									"if (pm.response.code === 200) {",
 									"    const responseJson = pm.response.json();",
-									"    pm.environment.set(\"jwt_token\", responseJson.token);",
-									"    pm.environment.set(\"user_id\", responseJson.user.id);",
+									"    if (responseJson.success && responseJson.data) {",
+									"        pm.environment.set(\"jwt_token\", responseJson.data.token);",
+									"        pm.environment.set(\"user_id\", responseJson.data.user.id);",
+									"    }",
 									"}"
 								],
 								"type": "text/javascript"
@@ -66,7 +139,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"driver@taxiruta.com\",\n  \"password\": \"password123\"\n}"
+							"raw": "{\n  \"email\": \"carlos.rodriguez@taxiruta.com\",\n  \"password\": \"password123\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/auth/login",
@@ -88,6 +161,30 @@
 		{
 			"name": "Users",
 			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						},
+						"description": "Obtener lista de todos los usuarios (para administración)"
+					},
+					"response": []
+				},
 				{
 					"name": "Get User Profile",
 					"request": {
@@ -129,7 +226,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Updated User Name\",\n  \"phone\": \"+9876543210\"\n}"
+							"raw": "{\n  \"firstName\": \"Carlos Updated\",\n  \"lastName\": \"Rodríguez\",\n  \"phone\": \"+573009999999\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/users/{{user_id}}",
@@ -176,7 +273,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/trips?origin=Downtown&destination=Airport&departureDate=2025-09-17T10:00:00",
+							"raw": "{{baseUrl}}/api/trips?origin=Centro&destination=Aeropuerto&departureDate=2025-09-17",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -187,15 +284,15 @@
 							"query": [
 								{
 									"key": "origin",
-									"value": "Downtown"
+									"value": "Centro"
 								},
 								{
 									"key": "destination",
-									"value": "Airport"
+									"value": "Aeropuerto"
 								},
 								{
 									"key": "departureDate",
-									"value": "2025-09-17T10:00:00"
+									"value": "2025-09-17"
 								}
 							]
 						},
@@ -209,14 +306,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/trips/1",
+							"raw": "{{baseUrl}}/api/trips/{{trip_id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"trips",
-								"1"
+								"{{trip_id}}"
 							]
 						},
 						"description": "Obtener detalles de un viaje específico"
@@ -239,7 +336,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"driverId\": {{user_id}},\n  \"origin\": \"Central Station\",\n  \"destination\": \"Business District\",\n  \"departureTime\": \"2025-09-17T14:30:00\",\n  \"availableSeats\": 4,\n  \"price\": 20.00\n}"
+							"raw": "{\n  \"origin\": \"Centro Comercial Santafé\",\n  \"destination\": \"Aeropuerto El Dorado\",\n  \"departureTime\": \"2025-09-17T14:30:00\",\n  \"availableSeats\": 4,\n  \"pricePerSeat\": 25000,\n  \"description\": \"Viaje cómodo y seguro al aeropuerto\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/trips",
@@ -271,7 +368,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"driverId\": {{user_id}},\n  \"origin\": \"Central Station\",\n  \"destination\": \"Business District\",\n  \"departureTime\": \"2025-09-17T15:00:00\",\n  \"availableSeats\": 3,\n  \"price\": 22.00\n}"
+							"raw": "{\n  \"origin\": \"Centro Comercial Santafé\",\n  \"destination\": \"Aeropuerto El Dorado\",\n  \"departureTime\": \"2025-09-17T15:00:00\",\n  \"availableSeats\": 3,\n  \"pricePerSeat\": 27000,\n  \"description\": \"Viaje actualizado - salida más tarde\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/trips/1",
@@ -334,7 +431,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"tripId\": 1,\n  \"passengerId\": {{user_id}}\n}"
+							"raw": "{\n  \"seatsRequested\": 2\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/trips/1/bookings",
@@ -389,16 +486,16 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/trips/1/bookings/1?status=CONFIRMED",
+							"raw": "{{baseUrl}}/api/trips/{{trip_id}}/bookings/{{booking_id}}?status=CONFIRMED",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"trips",
-								"1",
+								"{{trip_id}}",
 								"bookings",
-								"1"
+								"{{booking_id}}"
 							],
 							"query": [
 								{
@@ -465,15 +562,28 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "http://localhost:8080"
+			"value": "http://localhost:8080",
+			"description": "URL base del servidor TaxiRuta Backend"
 		},
 		{
 			"key": "jwt_token",
-			"value": ""
+			"value": "",
+			"description": "Token JWT para autenticación (se establece automáticamente después del login)"
 		},
 		{
 			"key": "user_id",
-			"value": ""
+			"value": "",
+			"description": "ID del usuario autenticado (se establece automáticamente después del login)"
+		},
+		{
+			"key": "trip_id",
+			"value": "1",
+			"description": "ID de viaje para pruebas"
+		},
+		{
+			"key": "booking_id",
+			"value": "1",
+			"description": "ID de reserva para pruebas"
 		}
 	]
 }
